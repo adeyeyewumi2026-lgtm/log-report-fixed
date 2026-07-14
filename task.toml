@@ -14,7 +14,7 @@ model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
 difficulty_explanation = "Parse a small Apache-style access log and emit summary stats (request count, unique client count, most-requested path)."
 solution_explanation = "Read /app/access.log line by line, count total lines as requests, collect the first whitespace-delimited token per line as the client IP into a set, and extract the request path from the quoted request line via a regex on the HTTP method; the path with the highest count is top_path."
-verification_explanation = "The verifier independently parses a trusted copy of the access log (baked into tests/, never exposed to the agent) to compute the true total_requests, unique_ips, and top_path, then asserts the agent's /app/report.json matches those values exactly, in addition to checking the file exists and has the correct schema/types."
+verification_explanation = "The verifier independently parses a trusted copy of the access log (baked into tests/, never exposed to the agent) to compute the true total_requests, unique_ips, and top_path, then asserts the agent's /app/report.json matches those values exactly, checks the schema has exactly the three required keys, and confirms /app/access.log was left unmodified."
 
 [verifier]
 timeout_sec = 120.0
