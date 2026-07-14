@@ -26,48 +26,44 @@ def _load_report():
         return json.load(f)
 
 
-def test_report_exists_and_is_valid_json():
-    """The agent produced /app/report.json containing valid JSON."""
+def test_criterion_1_schema_exact():
+    """instruction.md criterion 1: report.json exists, is valid JSON, and has
+    exactly the keys total_requests, unique_ips, top_path -- no more, no less."""
     data = _load_report()
     assert isinstance(data, dict)
-
-
-def test_report_has_exact_schema():
-    """report.json has exactly the three required keys, no more, no less."""
-    data = _load_report()
     assert set(data.keys()) == {"total_requests", "unique_ips", "top_path"}
 
 
-def test_total_requests_correct():
-    """total_requests matches the true non-empty line count of the access log."""
+def test_criterion_2_total_requests():
+    """instruction.md criterion 2: total_requests equals the true non-empty
+    line count of /app/access.log."""
     data = _load_report()
     assert isinstance(data["total_requests"], int)
     assert data["total_requests"] == EXPECTED["total_requests"]
 
 
-def test_unique_ips_correct():
-    """unique_ips matches the true count of distinct client IPs."""
+def test_criterion_3_unique_ips():
+    """instruction.md criterion 3: unique_ips equals the true count of
+    distinct client IPs in /app/access.log."""
     data = _load_report()
     assert isinstance(data["unique_ips"], int)
     assert data["unique_ips"] == EXPECTED["unique_ips"]
 
 
-def test_top_path_correct():
-    """top_path matches the most-requested path in the access log."""
+def test_criterion_4_top_path():
+    """instruction.md criterion 4: top_path equals the most-requested path
+    in /app/access.log."""
     data = _load_report()
     assert isinstance(data["top_path"], str)
     assert data["top_path"] == EXPECTED["top_path"]
 
 
-def test_fixture_matches_agent_input():
-    """
-    Sanity check on the verifier itself: the trusted fixture log used to compute
-    EXPECTED must be byte-identical to the log the agent was given, otherwise this
-    verifier would be grading against the wrong ground truth.
-    """
+def test_criterion_5_access_log_unmodified():
+    """instruction.md criterion 5: /app/access.log must be left unmodified.
+    Compared against a trusted fixture copy baked into tests/ (verify-time
+    only), so the agent cannot pass this by tampering with its own copy."""
     agent_log = Path("/app/access.log")
     assert agent_log.exists(), "agent's /app/access.log is missing"
     assert agent_log.read_text() == FIXTURE_LOG.read_text(), (
-        "agent's access.log differs from the trusted fixture; "
-        "verifier ground truth would be invalid"
+        "agent's access.log differs from the trusted fixture -- log was modified"
     )
